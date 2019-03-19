@@ -59,11 +59,26 @@
 
 - Specify transformations in the **transforms** list
 
-  
-
   - Avoid transformations that require simultaneous access to all observations in the dataset
 
   - Add R variables to the transforms closure using the **transformObjects** list
+
+```R
+# rxGetInfo Fuction - 파일의 정보 출력
+rxGetInfo("C:\\Data\\FlightDelayData.xdf", getBlockSizes = TRUE)
+
+# Result
+File name: C:\Data\FlightDelayData.xdf 
+Number of observations: 11602437 
+Number of variables: 29 
+Number of blocks: 27 
+Rows per block (first 10): 483202 485743 128712 485188 470856 190555 493648 494317 54169 490696
+Compression type: zlib 
+```
+
+```R
+
+```
 
 
 
