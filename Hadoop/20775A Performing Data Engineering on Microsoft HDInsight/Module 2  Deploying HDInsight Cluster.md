@@ -143,7 +143,7 @@ An Apache Spark Cluster on HDInsight includes the following modules and componen
 
 - Cluster creation methods
 
-- Cluster type
+- Cluster type (Hadoop, Spark, Storm, HBase, R Server가 있으며, 추가로 Kafka와 Interactive Hive가 있다.)
 
 - Operating system
 
@@ -201,6 +201,38 @@ An Apache Spark Cluster on HDInsight includes the following modules and componen
 - Displaying the list of clusters
 - Deleting the cluster
 - Customizing the cluster
+
+Log in with username and password
+
+```azure
+'azure login -u myUserName@contoso.onmicrosoft.com'
+```
+
+Log in with service principal 
+
+```azure
+'azure login -u https://www.contoso.org/example --service-principal --tenant myTenantID'
+```
+
+Resource Manager mode
+
+```azure
+'azure config mode arm'
+```
+
+Service Management mode
+
+```azure
+'azure config mode asm'
+```
+
+Create the cluster
+
+```
+azure HDInsight Cluster create -g groupname -l location -y Linux --clusterType Hadoop --defaultStorageAccountName storagename.blob.core.windows.net --defaultStorageAccountKey Storagekey --defaultStorageContainer clustername --workerNodeCount 2 --userName admin --password httppassword --sshUserName sshuser --sshPassword sshuserpassword clustername
+```
+
+
 
 ### Deleting clusters
 
@@ -268,4 +300,3 @@ At the end of the lab, you will delete the cluster so that your account does not
 - Exercise 1: Create an HDInsight cluster that uses Data Lake Store storage
 - Exercise 2: Customize HDInsight by using script actions
 - Exercise 3: Delete an HDInsight cluster
-
