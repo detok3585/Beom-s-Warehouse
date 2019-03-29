@@ -43,6 +43,12 @@ Before starting this module, you should perform the following steps. This will t
 
 ![image](https://user-images.githubusercontent.com/46669551/55041580-02340180-5071-11e9-96b7-6386a08d0ac6.png)
 
+# [HDP 구성요소](https://ko.hortonworks.com/products/data-platforms/hdp/)
+
+![image](https://user-images.githubusercontent.com/46669551/55041720-b2096f00-5071-11e9-90f1-45e0f46bd758.png)
+
+![image](https://user-images.githubusercontent.com/46669551/55041728-c51c3f00-5071-11e9-8e78-25b75a047197.png)
+
 ## Module Overview
 
 - What is Spark?
@@ -69,6 +75,8 @@ Before starting this module, you should perform the following steps. This will t
 
 ## Spark components and supporting applications 
 
+![image](https://user-images.githubusercontent.com/46669551/55042736-4544a380-5076-11e9-97b4-33612bdee97e.png)
+
 - **Spark Core** [Scala & Python]
   - Spark SQL
   - Spark Streaming (건건당 들어온 데이터를 처리가능)
@@ -81,7 +89,7 @@ Before starting this module, you should perform the following steps. This will t
 
 ### Common execution model
 
-- Driver
+- Driver : 클러스터 관리자에 연결하여 리소스를 응용 프로그램에 걸쳐 리소스 할당. 클러스터 실행자를 얻고 계산 작업을 처리 데이터를 캐시. 실행자에 앱코드를 전송. 실행자를 위한 작업을 전송하여 실행.
 
 - Executor
 
@@ -155,7 +163,7 @@ Before starting this module, you should perform the following steps. This will t
 
 - Supports distributed computing and fault tolerance is built in to the framework
 
-### Extract: read data with SparkContext
+### Extract: read data with SparkContext (기능[sc.textFile()의 형태])
 - Use SparkContext for “extract” phase
 
 - Any Hadoop data source supported
@@ -170,27 +178,65 @@ Before starting this module, you should perform the following steps. This will t
 
   - Hadoop InputFormat
 
+## [RDD](https://12bme.tistory.com/306)  (Resilient Distributed Dataset)
+
+Spark = RDD + Interface
+
+> Action code가 입력되기 전까지 실행되지 않는 특징을 가지고 있다. 
+
+![image](https://user-images.githubusercontent.com/46669551/55044362-5e9d1e00-507d-11e9-9738-4c0d8b4e8efb.png)
+
+> **RDD의 내부 작동 원리**
+>
+> ------
+>
+> RDD는 병렬도 동작하고, 이는 스파크의 가장 큰 장점입니다. 각 트랜스포메이션은 속도를 비약적으로 향상시키기 위해 실행됩니다.
+>
+>  데이터셋에 대한 트랜스포케이션은 게으릅니다. 이 말은 모든 트랜스포메이션은 데이터셋에 대한 액션이 호출됐을 때 실행된다는 뜻입니다. 이로 인해 스파크의 실행이 최적화됩니다. 예를 들어, 데이터 분석가가 데이터셋에 익숙해지기 위해 수행하는 다음 일반적인 과정을 보겠습니다.
+>
+>   \1. 특정 칼럼의 고유한 값의 개수를 세기
+>
+>   \2. A로 시작하는 것들 찾기
+>
+>   \3. 스크린에 결과 출력하기
+>
+> 위의 언급된 과정과 같이 간단하게, A로 시작하는 단어들이 궁금하다면, 다른 아이템의 고유 값 개수를 세는 것은 의미없는 작업입니다. 그러므로 스파크는 위의 실행 과정을 순서대로 따르지 않으며, A로 시작하는 단어를 세고 결과를 출력하는 작업만 수행합니다.
+>
+> 이 과정을 코드로 나눠보겠습니다. 
+>
+> 첫번째로는 .map(lambda v: (v, 1))를 이용해 스파크가 A를 포함하는 단어를 모으게 하고, 
+>
+> 두번째로 .filter(lambda val: val.startswith('A')) method) 를 사용해 A로 시작하는 단어를 필터링합니다. 
+>
+> 세번째로 .reduceByKey(operator.add)를 호출하면, 각 키마다 출현한 횟수를 모두 더해 데이터셋이 줄어들게 됩니다. 이 모든 단계들이 데이터셋을 트랜스폼(transform)합니다.
+>
+> 네번째로는 .collect() 함수를 호출해 단계를 수행합니다. 이 단계가 우리의 데이터셋에 대한 액션입니다. (이 과정으로 데이터셋에서의 고유 데이터 갯수를 세게 됩니다.)
+>
+>  결과적으로 액션은 트랜스포케이션의 순서를 역순으로 해서, 매핑을 먼저하고 데이터를 필터링합니다. 이로 인해 더 적은 데이터가 리듀서(Reducer)에 전달 됩니다.
+
+![image](https://user-images.githubusercontent.com/46669551/55044498-e7b45500-507d-11e9-89b5-1d6d6149e07d.png)
+
 ### Transform: the RDD API
 
 - An immutable collection of objects 
 - Partitioned and distributed across multiple physical nodes of a YARN cluster 
-- Can be operated on in parallel
-  - Transformations
-  - Actions
+- Can be operated on in parallel (RDD는 두가지의 기능을 갖는다)
+  - Transformations (변환)
+  - Actions (수행)
 
-### RDD transformations
+### RDD transformations (Data를 처리하지 않은 상태)
 
 - Apply a transformation to generate an output RDD from an input RDD
 - Transformations are lazily evaluated
 
-### RDD actions
+### RDD actions (Data처리를 수행)
 
 - Return values to a calling application
-- Triggers evaluation of transformations on which the action depends
+- **Triggers evaluation** of transformations on which the action depends
 
 ### RDD example: word count ETL
 
-- Python word count:
+- Python word count: [함수가 함수를 받는다는 특징을 갖는다]
 
   ![image](https://user-images.githubusercontent.com/46669551/54982907-19caa600-4fef-11e9-8541-7bb6e6ae4a12.png)
 
@@ -223,18 +269,235 @@ Many ways to trigger Spark applications:
 Data sources external to HDInsight on Spark clusters:
 
 - NoSQL—connectors
-  - HBase
-  - Azure DocumentDB
-
+  - **HBase**
+  - **Azure DocumentDB**
+  - **MongoDB**
 - Azure Data Lake—adl:// URI
-
 - Azure SQL Data Warehouse—ODBC/JDBC
+
+
+
+### 1. Jupyter NoteBook을 통하여 Storage account에 접속하여 데이터를 호출하기
+
+```
+1. Storageaccount의 container의 속성에서 root를 확인한다
+
+https://kdongxie2019sa.blob.core.windows.net/kdongxie2019cn-2019-03-27t03-14-45-795z
+
+2. 호출한는 systex에 맞추어 준다
+
+baby_names = sqlContext.read.format("com.databricks.spark.csv").options(header='true', inferschema='true').load('wasb://컨테이너이름@스토리지이름.blob.core.windows.net/user/sshuser/baby_names.csv')
+
+3. Jupyter notebook에 명령어를 실행시켜 Spark application을 실행시킨다.
+
+baby_names = sqlContext.read.format("com.databricks.spark.csv").options(header='true', inferschema='true').load('wasb://kdongxie2019cn-2019-03-27t03-14-45-795z@kdongxie2019sa.blob.core.windows.net/user/sshuser/baby_names.csv')
+```
+
+### 출력 값
+
+```
+Starting Spark application
+ID	YARN Application ID	Kind	State	Spark UI	Driver log	Current session?
+0	application_1553657040065_0005	pyspark	idle	Link	Link	✔
+SparkSession available as 'spark'.
+```
+
+### 2. 호출한 데이터를 변수에 저장한 후 출력하기
+
+```
+baby_names.registerTempTable("baby_names")
+result = sqlContext.sql("select * from baby_names")
+result.show()
+```
+
+### 출력 값
+
+```
++----+-----------+-----------+---+-----+
+|Year| First Name|     County|Sex|Count|
++----+-----------+-----------+---+-----+
+|2013|      GAVIN|ST LAWRENCE|  M|    9|
+|2013|       LEVI|ST LAWRENCE|  M|    9|
+|2013|      LOGAN|   NEW YORK|  M|   44|
+|2013|     HUDSON|   NEW YORK|  M|   49|
+|2013|    GABRIEL|   NEW YORK|  M|   50|
+|2013|   THEODORE|   NEW YORK|  M|   51|
+|2013|      ELIZA|      KINGS|  F|   16|
+|2013|  MADELEINE|      KINGS|  F|   16|
+|2013|       ZARA|      KINGS|  F|   16|
+|2013|      DAISY|      KINGS|  F|   16|
+|2013|   JONATHAN|   NEW YORK|  M|   51|
+|2013|CHRISTOPHER|   NEW YORK|  M|   52|
+|2013|       LUKE|    SUFFOLK|  M|   49|
+|2013|    JACKSON|   NEW YORK|  M|   53|
+|2013|    JACKSON|    SUFFOLK|  M|   49|
+|2013|     JOSHUA|   NEW YORK|  M|   53|
+|2013|      AIDEN|   NEW YORK|  M|   53|
+|2013|    BRANDON|    SUFFOLK|  M|   50|
+|2013|       JUDY|      KINGS|  F|   16|
+|2013|      MASON|ST LAWRENCE|  M|    8|
++----+-----------+-----------+---+-----+
+only showing top 20 rows
+```
+
+### 3. 출력값의 갯 수를 출력해준다.
+
+```
+sqlContext.sql("select count(*) from baby_names").show()
+```
+
+### 출력 값
+
+```
++--------+
+|count(1)|
++--------+
+|  145570|
++--------+
+```
+
+### 4. Groupby를 통하여 Distict한다
+
+```
+sqlSmt = "select County, count(*) from baby_names group by County"
+```
+
+### Groupby한 내용을 출력한다.
+
+```
+sqlContext.sql(sqlSmt).show()
+```
+
+### 출력 값
+
+```
++-----------+--------+
+|     County|count(1)|
++-----------+--------+
+|     Cayuga|     537|
+|     Ulster|    1002|
+|     FULTON|      58|
+|      Kings|   12888|
+|     Monroe|    3819|
+|     Queens|   10365|
+|   Franklin|     368|
+|     Oneida|    1532|
+|    Chemung|     702|
+|CATTARAUGUS|     170|
+|     Orange|    2160|
+|    STEUBEN|     231|
+|      YATES|       3|
+|    Steuben|     759|
+|     Otsego|     402|
+| Montgomery|     505|
+|   Tompkins|     607|
+|      KINGS|    4957|
+|   Schuyler|     159|
+|     OSWEGO|     371|
++-----------+--------+
+only showing top 20 rows
+```
+
+
 
 ## Demonstration: Spark ETL
 
 In this demonstration, you will see:
 
 - How to run a simple Spark ETL process from Jupyter Notebook
+
+### Jupyter Notebook을 활용 PySpark를 이용한 데이터 처리
+
+1. Text file을 호출하여 RDD의 타입으로 변환하여준다.
+
+```
+from pyspark.sql import Row
+text_file = sc.textFile("wasbs:///HdiSamples/HdiSamples/TwitterTrendsSampleData/tweets.txt")
+```
+
+```
+counts = text_file.flatMap(lambda line: line.split(" ")).map(lambda word: (word, 1)).reduceByKey(lambda a, b: a+b)
+```
+
+2. 변환한 파일의 앞의 5개만을 호출하여 출력한다.
+
+```
+counts.take(5) #for visualization of the interim step only
+```
+
+`출력 값`
+
+```
+[(u'', 59), (u'Texas","url":"http:\\/\\/www.ibm.com\\/socialbusiness","description":"Marketing', 1), (u'Lead', 3), (u'#Gardening', 2), (u'sleep', 1)]
+```
+
+3. 변환된 파일의 전체 갯수를 count한다.
+
+```
+counts.count() #for visualization of the interim step only
+
+`3817`
+```
+
+4. RDD를 DataFrame의 형식으로 바꾸어 주고 DataFrame Type의 Table로 저장해준다.
+
+```
+counts_row = counts.map(lambda p: Row(word=p[0],count=int(p[1])))
+schemaCounts = sqlContext.createDataFrame(counts_row)
+schemaCounts.registerTempTable("counts")
+```
+
+5. 가장많이 나온 word와 갯수를 위에서 5개만을 출력해준다
+
+```
+output = sqlContext.sql("select * from counts order by count desc limit 5")
+for eachrow in output.collect():
+    print(eachrow)
+```
+
+`출력 값`
+
+```
+Row(count=506, word=u'+0000')
+Row(count=346, word=u'Nov')
+Row(count=267, word=u'25')
+Row(count=200, word=u'{"created_at":"Tue')
+Row(count=131, word=u'for')
+```
+
+### Putty를 통한 개발
+
+1. spark cluster에 접속하여 .py파일을 생성
+
+```
+touch wordcount.py
+```
+
+2. 생성된 .py 파일안에 스크립트를 넣어준다.
+
+```
+import sys
+
+from pyspark import SparkContext, SparkConf
+
+if __name__ == "__main__":
+
+    conf = SparkConf().setAppName("Word Count - Python").set("spark.hadoop.yarn.resourcemanager.address", "https://myhdinsight123411.azurehdinsight.net:8032")
+    sc = SparkContext(conf=conf)
+    words = sc.textFile("wasb:///user/sshuser/ab40thv.txt").flatMap(lambda line: line.split(" "))
+    wordCounts = words.map(lambda word: (word, 1)).reduceByKey(lambda a,b:a +b)
+    wordCounts.saveAsTextFile("wasb:///user/sshuser/output/")
+```
+
+3. spark를 사용하여 쿼리문을 실행시킨다.
+
+```
+spark-submit wordcount.py
+```
+
+4. 파일 생성을 확인한다.
+
+![image](https://user-images.githubusercontent.com/46669551/55051059-f824f980-5096-11e9-8b1a-a5589d482073.png)
 
 ## Lesson 3: Spark performance
 
@@ -249,17 +512,21 @@ In this demonstration, you will see:
 
 ### YARN queues
 
-- YARN Capacity Scheduler manages resources and queues
+- **YARN Capacity Scheduler** <u>manages resources and queues</u>
 - A queue is allocated a percentage of total cluster resources
-- Manage YARN queues through Ambari
+- Manage YARN queues <u>through **Ambari**</u>
 
 ### Debugging Spark jobs
 
 - Yarn UI
 
   - Details of Yarn resource allocation
-
   - Opens Spark UI from the **Tracking URL** link
+
+
+```
+https://CLUSTERNAME.azurehdinsight.net/yarnui
+```
 
 - Spark UI
   - View details of running jobs
@@ -270,9 +537,9 @@ In this demonstration, you will see:
 ### Spark driver and executor settings
 
 - Executor settings:
-  - Number of executors
-  - Number of cores
-  - Executor memory
+  - Number of executors: **spark.executor.instances**
+  - Number of cores: **spark.executor.cores**
+  - Executor memory: **spark.executor.memory**
 
 - Cluster-level defaults
 
@@ -286,7 +553,7 @@ In this demonstration, you will see:
 
   - Executor memory
 
-### Partitioning
+## Partitioning
 
 - Divides RDDs into blocks for more efficient parallelization
 
@@ -345,15 +612,7 @@ In this demonstration, you will learn how to track and debug Spark jobs using:
 
 
 
-
-
-
-
-
-
-
-
-## Spark Setting
+## On-promise Spark Setting 
 
 ```
 INSERT INTO TABLE employee VALUES(1, 'Tome', 2000);
@@ -420,6 +679,7 @@ $ scalac -classpath "spark-core_2.xxxx.jar:/usr/local/spark/lib/spark-assembly-x
 jar -cvf wordcount.jar SparkWordCount*.class spark-core_2.x.jar/usr/local/spark/lib/spark-assembly-x.x.x-hadoop2.7.3.jar
 spark-submit --class SparkWordCount --master local wordcount.jar
 
+###########파이썬########
 * Pyspark (WordCount)
 test = sc.textFile("README.md") 
 counts = test.flatMap(lambda line: line.split(" ")).map(lambda word: (word,1)).reduceByKey(lambda a, b: a+b)
