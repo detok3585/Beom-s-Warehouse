@@ -48,7 +48,7 @@
 - [Spark Data IO 예제.md](https://github.com/detok3585/Beom-s-Warehouse/blob/master/Hadoop/Spark%20Data%20IO%20%EC%98%88%EC%A0%9C.md)
 - [Spark keyvalue RDD 예제.md](https://github.com/detok3585/Beom-s-Warehouse/blob/master/Hadoop/Spark%20keyvalue%20RDD%20%EC%98%88%EC%A0%9C.md)
 - [Zookeeper 구성.md](https://github.com/detok3585/Beom-s-Warehouse/blob/master/Hadoop/Zookeeper%20%EA%B5%AC%EC%84%B1.md)
-- [pyspark 문제 및 답안.md]([https://github.com/detok3585/Beom-s-Warehouse/blob/master/Hadoop/pyspark%20%EB%AC%B8%EC%A0%9C%20%EB%B0%8F%20%EB%8B%B5%EC%95%88.md)
+- [pyspark 문제 및 답안.md](https://github.com/detok3585/Beom-s-Warehouse/blob/master/Hadoop/pyspark%20%EB%AC%B8%EC%A0%9C%20%EB%B0%8F%20%EB%8B%B5%EC%95%88.md)
 
 
 
